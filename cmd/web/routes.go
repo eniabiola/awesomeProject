@@ -1,17 +1,20 @@
 package main
 
 import (
-	"github.com/bmizerany/pat"
 	"github.com/eniabiola/awesomeProject/pkg/config"
 	"github.com/eniabiola/awesomeProject/pkg/handler"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"net/http"
 )
 
 func routes(app *config.AppConfig) http.Handler {
-	mux := pat.New()
+	mux := chi.NewRouter()
 
-	mux.Get("/", http.HandlerFunc(handler.Repo.Home))
-	mux.Get("/about", http.HandlerFunc(handler.Repo.About))
+	mux.Use(middleware.Recoverer)
+
+	mux.Get("/", handler.Repo.Home)
+	mux.Get("/about", handler.Repo.About)
 
 	return mux
 }
