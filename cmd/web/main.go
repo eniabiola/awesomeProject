@@ -2,19 +2,32 @@ package main
 
 import (
 	"fmt"
+	"github.com/alexedwards/scs/v2"
 	"github.com/eniabiola/awesomeProject/pkg/config"
 	"github.com/eniabiola/awesomeProject/pkg/handler"
 	"github.com/eniabiola/awesomeProject/pkg/render"
 	"log"
 	"net/http"
+	"time"
 )
 
 const portNumber string = ":8080"
 
+var app config.AppConfig
+var session *scs.SessionManager
+
 // main is the main application function
 func main() {
 
-	var app config.AppConfig
+	app.InProduction = false
+
+	session = scs.New()
+	session.Lifetime = 24 * time.Hour
+	session.Cookie.Persist = true
+	session.Cookie.SameSite = http.SameSiteLaxMode
+	session.Cookie.Secure = app.InProduction
+
+	app.Session = session
 
 	//get the template cache from the app config
 	tc, err := render.CreateTemplateCache()
