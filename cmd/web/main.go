@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/eniabiola/awesomeProject/pkg/config"
 	"github.com/eniabiola/awesomeProject/pkg/handler"
+	"github.com/eniabiola/awesomeProject/pkg/render"
+	"log"
 	"net/http"
 )
 
@@ -11,8 +14,23 @@ const portNumber string = ":8080"
 // main is the main application function
 func main() {
 
-	http.HandleFunc("/", handler.Home)
-	http.HandleFunc("/about", handler.About)
+	var app config.AppConfig
+
+	//get the template cache from the app config
+	tc, err := render.CreateTemplateCache()
+	if err != nil {
+		log.Fatal("cannot create template cache")
+	}
+
+	app.TemplateCache = tc
+	app.UseCache = false
+	
+	repo := handler.NewRepo(&app)
+	handler.NewHandlers(repo)
+
+	render.NewTemplates(&app)
+	http.HandleFunc("/", handler.Repo.Home)
+	http.HandleFunc("/about", handler.Repo.About)
 
 	fmt.Printf("Starting application on %s", portNumber)
 
